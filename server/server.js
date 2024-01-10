@@ -10,7 +10,6 @@ const wss = new WebSocket.Server({ server });
 const clients = new Set();
 
 wss.on("connection", (ws) => {
-  console.log("ws", ws)
   // Send the initial list of connected users to the new client
   const connectedUsernames = Array.from(clients).map(
     (client) => client.username
@@ -18,7 +17,6 @@ wss.on("connection", (ws) => {
   ws.send(JSON.stringify({ type: "connectedUsers", data: connectedUsernames }));
 
   ws.on("message", (message) => {
-    console.log("message", message);
     try {
       const data = JSON.parse(message);
 
@@ -41,9 +39,9 @@ wss.on("connection", (ws) => {
           }
         });
       } else if (data.type === "message") {
-        // Broadcast the message to all clients
+        // Broadcast the message to all clients except the sender
         wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({ type: "message", data }));
           }
         });
@@ -52,6 +50,7 @@ wss.on("connection", (ws) => {
       console.error("Error parsing JSON:", message);
     }
   });
+
 
   ws.on("close", () => {
     // Remove the client from the set when it disconnects
@@ -73,7 +72,6 @@ wss.on("connection", (ws) => {
   // Add the new client to the set
   clients.add(ws);
 });
-
 
 server.listen(3001, () => {
   console.log("WebSocket server listening on http://localhost:3001");
