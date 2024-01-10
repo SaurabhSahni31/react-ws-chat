@@ -12,3 +12,5 @@ Open 2 terminals:
   2. server/node server.js
 
 The server will run on localhost:3001 and the front-end application will run on localhost:3000.
+
+Don't forget to give the project a star ⭐!
